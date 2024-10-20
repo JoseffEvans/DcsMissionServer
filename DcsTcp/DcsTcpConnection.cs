@@ -106,7 +106,10 @@ namespace DcsTcp {
                 } catch(OperationCanceledException) {
                     break;
                 } catch(Exception ex) {
+                    // TODO Handle this
                 } finally {
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
                 }
             }
         }
