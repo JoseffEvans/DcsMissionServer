@@ -3,16 +3,16 @@ using SharedUtil;
 
 var testOutDir = "./TestOutput";
 
-var connection = new DcsTcpConnection(
-    "127.0.0.1", 12534,
-    "127.0.0.1", 12545
+using var connection = new DcsTcpConnection(
+    "127.0.0.1", 12622,
+    "127.0.0.1", 12623
 );
 
 try {
     connection.StartServer((message) => {
         if(!Directory.Exists(testOutDir))
             Directory.CreateDirectory(testOutDir);
-        File.WriteAllText($"{testOutDir}/{DateTime.Now}", message);
+        File.WriteAllText($"{testOutDir}/out{DateTime.Now:yyyyMMdd_HHmmss}.json", message);
         Console.WriteLine(message);
         return "Recived";
     });
@@ -21,10 +21,11 @@ try {
 }
 
 
-Thread.Sleep(1000 * 60);
+//Thread.Sleep(1000 * 60);
 
-connection.StopServer();
+//connection.StopServer();
 
 Console.ReadLine();
+
 
 

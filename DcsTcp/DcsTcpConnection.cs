@@ -23,7 +23,7 @@ namespace DcsTcp {
         /// <summary> Runs a TCP server in a new thread </summary>
         /// <param name="onMessageRecived">Parameter is the message from DCS, return value is response to DCS</param>
         public void StartServer(Func<string, string> onMessageRecived) {
-            if(Thread is not null && Thread.IsAlive)
+            if(Thread is not null)
                 throw new Exception("Server is already running, call StopServer");
 
             Thread = new Thread(async () => {

@@ -7,12 +7,17 @@ namespace DcsDataManagment {
 
         const string Script = "./DcsPredictions.py";
 
-        public async static Task<DcsPredictions> Predict(DcsData data) =>
+        public async static Task<DcsPredictions> Predict(string data) =>
             await Predict(
-                JsonConvert.SerializeObject(data)
+                JsonConvert.DeserializeObject<DcsData>(data)
+                    ?? throw new Exception($"Data converted to null string, data: {data}")
             );
 
-        public async static Task<DcsPredictions> Predict(string data) {
+        public async static Task<DcsPredictions> Predict(DcsData data) {
+            var trainingData = 
+                from unit in data.Units
+                select new int[] { unit.X, unit.Y, unit.Type };
+
             try {
                 var startInfo = new ProcessStartInfo {
                     FileName = "python3",
@@ -23,7 +28,7 @@ namespace DcsDataManagment {
                 };
 
                 startInfo.ArgumentList.Add(Script);
-                startInfo.ArgumentList.Add(data);
+                startInfo.ArgumentList.Add(JsonConvert.SerializeObject(trainingData));
 
                 using var scriptProcess = new Process {
                     StartInfo = startInfo
