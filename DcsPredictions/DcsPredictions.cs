@@ -1,4 +1,5 @@
-﻿namespace DcsDataManagment {
+﻿namespace DcsPredictions {
     public class DcsPredictions {
+
     }
 }

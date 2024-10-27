@@ -1,11 +1,11 @@
-﻿namespace DcsDataManagment {
+﻿namespace DcsPredictions {
     public class DcsData {
-        public List<UnitData> Units;
+        public List<UnitData>? Units;
     }
 
     public class UnitData {
-        public int X;
-        public int Y;
-        public int Type; // 0 or 1
+        public double X;
+        public double Y;
+        public int Team; // 0 or 1
     }
 }

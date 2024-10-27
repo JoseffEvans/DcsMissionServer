@@ -95,8 +95,8 @@ namespace DcsTcp {
                     }
 
                     var response = Encoding.UTF8.GetBytes(
-                            onMessage(messageBuilder.ToString())
-                        );
+                        onMessage(messageBuilder.ToString())
+                    );
 
                     for(int i = 0; i < response.Length; i += BUFFER_SIZE)
                         await handler.SendAsync(
@@ -106,7 +106,7 @@ namespace DcsTcp {
                 } catch(OperationCanceledException) {
                     break;
                 } catch(Exception ex) {
-                    // TODO Handle this
+                    throw new Exception($"An error occurred while running dcs tcp server loop.", ex);
                 } finally {
                     handler.Shutdown(SocketShutdown.Both);
                     handler.Close();

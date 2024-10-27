@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Text;
 
-namespace DcsDataManagment {
-    public class Predictions {
+namespace DcsPredictions {
+    public class Prediction {
 
         const string Script = "./DcsPredictions.py";
 
@@ -16,7 +15,7 @@ namespace DcsDataManagment {
         public async static Task<DcsPredictions> Predict(DcsData data) {
             var trainingData = 
                 from unit in data.Units
-                select new int[] { unit.X, unit.Y, unit.Type };
+                select new object[] { unit.X, unit.Y, unit.Team };
 
             try {
                 var startInfo = new ProcessStartInfo {
@@ -34,18 +33,22 @@ namespace DcsDataManagment {
                     StartInfo = startInfo
                 };
 
+                scriptProcess.Start();
+
                 string output = await scriptProcess.StandardOutput.ReadToEndAsync();
                 string error = await scriptProcess.StandardError.ReadToEndAsync();
 
                 await scriptProcess.WaitForExitAsync();
 
                 if(scriptProcess.ExitCode != 0 || !string.IsNullOrEmpty(error)) 
-                    throw new Exception($"Prediction script failed to run. Exited with code {scriptProcess.ExitCode}. Error output: {error}");
-                
+                    throw new Exception($"Prediction script failed to run. Exited with code {scriptProcess.ExitCode}.\nStd output: {output}\nError output: {error}");
+
+
+                File.WriteAllText($"./TestOutput/pyScriptOutput{DateTime.Now:ddMMyyyy_hhmmss}.json", output);
                 return JsonConvert.DeserializeObject<DcsPredictions>(output)
                     ?? throw new Exception("Python script did not write to output");
             }catch(Exception ex) {
-                throw new Exception("", ex); 
+                throw new Exception("An error occurred running prediction python script", ex); 
             }
         }
     }
