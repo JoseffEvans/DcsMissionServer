@@ -1,3 +1,6 @@
+---@class Request
+---@field Points table<integer, table<integer, number>>
+
 ---@param message string
 ---@param time number?
 function OutText(message, time)
@@ -45,6 +48,9 @@ function CreateServer()
     return server
 end
 
+NPoints = 400
+ThingN = 5902
+
 function RunServerLoop()
     local server = CreateServer()
 
@@ -59,9 +65,29 @@ function RunServerLoop()
         if socket then
             local message, err = socket:receive("*a")
             if err then OutText("Error occurred: " .. err) end
-            if message then OutText("Message Recived: " .. message) end
-            socket:send("success");
+            -- if message then OutText("Message Recived: " .. message) end
+
+            ---@type Request
+            local req = net.json2lua(message)
+            for i = ThingN - NPoints, ThingN do
+                trigger.action.removeMark(i)
+            end
+            for _, point in ipairs(req.Points) do
+                ThingN = ThingN + 1
+                trigger.action.circleToAll(
+                    -1,
+                    ThingN,
+                    {x = point[1], y = 0, z = point[2]},
+                    300,
+                    {1,0,0,1},
+                    {1,0,0,1},
+                    1
+                );
+            end
+            NPoints = #req.Points
+            OutText("NPoints: " .. NPoints, 5)
             socket:close()
+            SendTest()
         end
     end
 
@@ -77,3 +103,7 @@ end
 
 AppendSocketPath()
 RunServerLoop()
+SendTest()
+
+
+

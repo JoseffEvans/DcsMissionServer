@@ -2,13 +2,14 @@
 using DcsTcp;
 using Newtonsoft.Json;
 using SharedUtil;
+using System.Diagnostics;
 using System.Text.Json.Nodes;
 
 var testOutDir = "./TestOutput";
 
 using var connection = new DcsTcpConnection(
     "127.0.0.1", 12622,
-    "127.0.0.1", 12623
+    "127.0.0.1", 12522
 );
 
 int version = 0;
@@ -51,6 +52,8 @@ while(true) {
 
         try {
             var predictions = await Prediction.Predict(data);
+            Debug.Assert(predictions is not null);
+            await connection.SendMessage(JsonConvert.SerializeObject(predictions) ?? "{\"error\": true}");
         }catch(Exception ex) {
             Console.WriteLine($"An error occurred doing predictions: {ex.CombinedMessage()}");
         }

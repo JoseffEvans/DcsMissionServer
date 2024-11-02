@@ -5,6 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 # from sklearn.svm import SVC
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.ensemble import RandomForestClassifier
+# from sklearn.tree import DecisionTreeClassifier
 
 
 if __name__ == '__main__':
@@ -18,13 +21,15 @@ if __name__ == '__main__':
 
     data = np.array(json.loads(sys.argv[1]))
 
-    nContourPoints = 300
-    margin = 500000
+    nContourPoints = 100
+    margin = 50000
 
     X = data[:, :2]
     y = data[:, 2]
 
-    # clf = SVC(kernel='rbf', C=12)
+    clf = SVC(kernel='poly', degree=50, probability=True)
+    # clf = RandomForestClassifier(n_estimators=30)
+    # clf = SVC(kernel='rbf', C=3)
     clf = KNeighborsClassifier(n_neighbors=1)
     clf.fit(X, y)
 
@@ -48,8 +53,9 @@ if __name__ == '__main__':
     xy = np.vstack([XX.ravel(), YY.ravel()]).T
 
     # Do a prediction of each of the points
-    Z = clf.predict(xy).reshape(XX.shape)
-    # Z = clf.decision_function(xy).reshape(XX.shape)
+    # Z = clf.predict(xy).reshape(XX.shape) # svc
+    Z = clf.decision_function(xy).reshape(XX.shape) # knn
+    # Z = clf.predict_proba(xy)[:, 1].reshape(XX.shape)
 
     contour = ax.contour(XX, YY, Z, colors='k', levels=[(Z.min() + Z.max()) / 2], alpha=0.5, linestyles=['-'])
 

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcsTcp", "DcsTcp\DcsTcp.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcsPredictions", "DcsPredictions\DcsPredictions.csproj", "{F26783DE-E08B-4B4C-94C8-D5026899803C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interfaces", "Interfaces", "{FF087C23-0C7D-4AFE-B082-0A14D3995057}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "User Interfaces", "User Interfaces", "{FF087C23-0C7D-4AFE-B082-0A14D3995057}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logic", "Logic", "{251A1EFA-51DA-409A-93F3-8442BBD82252}"
 EndProject
