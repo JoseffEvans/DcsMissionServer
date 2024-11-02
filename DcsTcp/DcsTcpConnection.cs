@@ -70,9 +70,14 @@ namespace DcsTcp {
             StopServer();
         }
 
-        /// <returns>Response from server</returns>
-        public string SendMessage(string message) {
-            throw new NotImplementedException();
+        public async Task SendMessage(string message) {
+            var endpoint = new IPEndPoint(IPAddress.Parse(DcsIp), DcsPort);
+            using var socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
+            await socket.ConnectAsync(endpoint);
+
+            socket.Send(Encoding.UTF8.GetBytes(message));
+            socket.Shutdown(SocketShutdown.Both);
+            socket.Close();
         }
 
         async Task RunServerLoop(Socket listener, Func<string, string> onMessage) {
@@ -80,16 +85,16 @@ namespace DcsTcp {
                 throw new Exception("Server Token cannot be null when running the server loop");
 
             while(!ServerToken.Token.IsCancellationRequested) {
-                using var handler = await listener.AcceptAsync(ServerToken.Token);
-                handler.SendBufferSize = BUFFER_SIZE;
-                handler.ReceiveBufferSize = BUFFER_SIZE;
+                using var socket = await listener.AcceptAsync(ServerToken.Token);
+                socket.SendBufferSize = BUFFER_SIZE;
+                socket.ReceiveBufferSize = BUFFER_SIZE;
 
                 var messageBuilder = new StringBuilder();
                 var buffer = new byte[BUFFER_SIZE];
 
                 try {
                     while(true) {
-                        var received = await handler.ReceiveAsync(buffer);
+                        var received = await socket.ReceiveAsync(buffer);
                         if(received == 0) break;
                         messageBuilder.Append(Encoding.UTF8.GetString(buffer, 0, received));
                     }
@@ -99,7 +104,7 @@ namespace DcsTcp {
                     );
 
                     for(int i = 0; i < response.Length; i += BUFFER_SIZE)
-                        await handler.SendAsync(
+                        await socket.SendAsync(
                             response.AsMemory(i, Math.Min(BUFFER_SIZE, response.Length - i))
                         );
 
@@ -108,8 +113,8 @@ namespace DcsTcp {
                 } catch(Exception ex) {
                     throw new Exception($"An error occurred while running dcs tcp server loop.", ex);
                 } finally {
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
                 }
             }
         }

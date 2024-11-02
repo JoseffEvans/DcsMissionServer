@@ -18,13 +18,14 @@ if __name__ == '__main__':
 
     data = np.array(json.loads(sys.argv[1]))
 
-    nContourPoints = 20
-    margin = 5000
+    nContourPoints = 300
+    margin = 500000
 
     X = data[:, :2]
     y = data[:, 2]
 
-    clf = KNeighborsClassifier(n_neighbors=2)
+    # clf = SVC(kernel='rbf', C=12)
+    clf = KNeighborsClassifier(n_neighbors=1)
     clf.fit(X, y)
 
     plt.scatter(X[:, 0], X[:, 1], c=y, s=30, cmap=plt.cm.Paired)
@@ -64,6 +65,6 @@ if __name__ == '__main__':
 
     plt.savefig(f"./TestOutput/plot_{dt}.png")
 
-    json.dump({"points": contour_points.tolist()}, sys.stdout)
+    json.dump({"Points": contour_points.tolist()}, sys.stdout)
     
 
