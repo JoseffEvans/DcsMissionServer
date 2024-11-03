@@ -43,7 +43,6 @@ namespace DcsPredictions {
                 if(scriptProcess.ExitCode != 0 || !string.IsNullOrEmpty(error)) 
                     throw new Exception($"Prediction script failed to run. Exited with code {scriptProcess.ExitCode}.\nStd output: {output}\nError output: {error}");
 
-
                 File.WriteAllText($"./TestOutput/pyScriptOutput{DateTime.Now:ddMMyyyy_hhmmss}.json", output);
                 return JsonConvert.DeserializeObject<DcsPredictions>(output)
                     ?? throw new Exception("Python script did not write to output");

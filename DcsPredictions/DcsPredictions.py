@@ -27,7 +27,7 @@ if __name__ == '__main__':
     X = data[:, :2]
     y = data[:, 2]
 
-    clf = SVC(kernel='poly', degree=50, probability=True)
+    # clf = SVC(kernel='poly', degree=50, probability=True)
     # clf = RandomForestClassifier(n_estimators=30)
     # clf = SVC(kernel='rbf', C=3)
     clf = KNeighborsClassifier(n_neighbors=1)

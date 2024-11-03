@@ -101,9 +101,19 @@ function RunServerLoop()
     )
 end
 
+-- AppendSocketPath()
+-- RunServerLoop()
+-- SendTest()
+
 AppendSocketPath()
-RunServerLoop()
-SendTest()
+local socket = require("socket")
+local con, err = socket.connect("localhost", 12622)
+if err then trigger.action.outText(net.lua2json(err), 100) end
+-- Command
+con:send("Write\n")
+-- Payload
+con:send("I like my dog")
+con:close()
 
 
 
