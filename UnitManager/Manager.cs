@@ -1,0 +1,32 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using UnitManager.Models;
+
+namespace UnitManager {
+    public class Manager {
+
+        readonly IServiceProvider _services;
+
+        public Manager(IServiceProvider services) {
+            _services = services;
+        }
+
+        public async Task<List<Unit>> GetAllUnits() =>
+            await NewDb().Units.ToListAsync();
+
+        public async Task<List<Unit>> GetUnits(int coalition) =>
+            await NewDb().Units.Where(unit => unit.CoalitionId == coalition).ToListAsync();
+
+        public async Task UpdateUnits(List<Unit> units) {
+            await NewDb().Units.UpsertRange(units).On(unit => unit.UnitId).RunAsync();
+        }
+
+        public async Task ClearDb() {
+            await NewDb().Database.ExecuteSqlAsync($"DELETE FROM Unit; VACUUM;");
+        }
+
+        UnitDbContext NewDb() =>
+            _services.CreateScope().ServiceProvider.GetService<UnitDbContext>()
+                ?? throw new Exception("A db unit context service should have been added");
+    }
+}

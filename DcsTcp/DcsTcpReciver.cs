@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.Hosting;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -8,21 +9,18 @@ namespace DcsTcp {
     /// <summary>
     /// Two way connection to a DCS server
     /// </summary>
-    public class DcsTcpConnection(string ip, int port, string dcsIp, int dcsPort) : IDisposable {
+    public class DcsTcpReciver(string ip, int port) : IDisposable, IHostedService {
 
         public readonly string Ip = ip;
         public readonly int Port = port;
-        public readonly string DcsIp = dcsIp;
-        public readonly int DcsPort = dcsPort;
         public Thread? Thread { get; protected set; }
+        public Func<string, string> OnMessageReceived { get; set; } = (message) => { return string.Empty; };
 
         const int BUFFER_SIZE = 1024 * 8;
 
         CancellationTokenSource? ServerToken;
 
-        /// <summary> Runs a TCP server in a new thread </summary>
-        /// <param name="onMessageRecived">Parameter is the message from DCS, return value is response to DCS</param>
-        public void StartServer(Func<string, string> onMessageRecived) {
+        public void StartServer() {
             if(Thread is not null)
                 throw new Exception("Server is already running, call StopServer");
 
@@ -41,12 +39,12 @@ namespace DcsTcp {
                     listener.Bind(endpoint);
                     listener.Listen(100);
 
-                    await RunServerLoop(listener, onMessageRecived);
+                    await RunServerLoop(listener);
                 } catch(OperationCanceledException) {
                     return;
                 } catch(Exception ex) {
                     throw new Exception(
-                        "An exception occurred when starting/runnning server.", ex
+                        "An exception occurred when starting/running server.", ex
                     );
                 }
             });
@@ -70,17 +68,8 @@ namespace DcsTcp {
             StopServer();
         }
 
-        public async Task SendMessage(string message) {
-            var endpoint = new IPEndPoint(IPAddress.Parse(DcsIp), DcsPort);
-            using var socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.IP);
-            await socket.ConnectAsync(endpoint);
 
-            socket.Send(Encoding.UTF8.GetBytes(message));
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
-        }
-
-        async Task RunServerLoop(Socket listener, Func<string, string> onMessage) {
+        async Task RunServerLoop(Socket listener) {
             if(ServerToken is null)
                 throw new Exception("Server Token cannot be null when running the server loop");
 
@@ -100,7 +89,7 @@ namespace DcsTcp {
                     }
 
                     var response = Encoding.UTF8.GetBytes(
-                        onMessage(messageBuilder.ToString())
+                        OnMessageReceived(messageBuilder.ToString())
                     );
 
                     for(int i = 0; i < response.Length; i += BUFFER_SIZE)
@@ -117,6 +106,14 @@ namespace DcsTcp {
                     socket.Close();
                 }
             }
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken) {
+            StartServer();
+        }
+
+        public async Task StopAsync(CancellationToken cancellationToken) {
+            StopServer();
         }
     }
 }

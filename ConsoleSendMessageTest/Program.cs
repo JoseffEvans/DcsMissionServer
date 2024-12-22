@@ -1,9 +1,10 @@
 ﻿using DcsTcp;
 
-using var connection = new DcsTcpConnection(
-    "127.0.0.1", 12622,
-    "127.0.0.1", 12522
+using var connection = new DcsTcpReciver(
+    "127.0.0.1", 12622
 );
+
+var sender = new DcsTcpSender("127.0.0.1", 12522);
 
 while(true) {
     Console.WriteLine("Send Message");
@@ -13,7 +14,7 @@ while(true) {
         Console.WriteLine("Non null input expected"); break;
     }
     try {
-        await connection.SendMessage(message);
+        await sender.SendMessage(message);
         Console.WriteLine("Success\n");
     } catch(Exception ex) {
         Console.WriteLine(ex.ToString());

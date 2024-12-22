@@ -2,11 +2,14 @@
 using DcsTcp;
 using DcsPredictions;
 using Newtonsoft.Json;
+using UnitManager;
+using UnitManager.Models;
 
 namespace CommandHandling {
-    public class CommandHandler (DcsTcpConnection connection){
+    public class CommandHandler(DcsTcpSender connection, Manager unitManager){
 
-        readonly DcsTcpConnection Connection = connection;
+        readonly DcsTcpSender Connection = connection;
+        readonly Manager UnitManager = unitManager;
         public Action<string>? OnMessageHandled = null;
         public Action<string>? OnWriteMessage = null;
 
@@ -27,6 +30,10 @@ namespace CommandHandling {
 
                     case Command.OutFile:
                     await WriteToFile(payload);
+                    break;
+
+                    case Command.UpdateUnits:
+                    await UpdateUnits(payload);
                     break;
 
                     default:
@@ -59,6 +66,11 @@ namespace CommandHandling {
             if(!Directory.Exists(testOutDir))
                 Directory.CreateDirectory(testOutDir);
             await File.WriteAllTextAsync($"{testOutDir}/out{DateTime.Now:yyyyMMdd_HHmmss}.json", message);
+        }
+
+        public async Task UpdateUnits(string payload) {
+            await UnitManager.UpdateUnits(JsonConvert.DeserializeObject<List<Unit>>(payload)
+                ?? throw new Exception("Update units request from dcs resulted in null"));
         }
     }
 }

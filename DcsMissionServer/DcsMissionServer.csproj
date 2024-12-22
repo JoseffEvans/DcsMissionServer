@@ -7,8 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommandHandling\CommandHandling.csproj" />
     <ProjectReference Include="..\DcsPredictions\DcsPredictions.csproj" />
     <ProjectReference Include="..\DcsTcp\DcsTcp.csproj" />
+    <ProjectReference Include="..\UnitManager\UnitManager.csproj" />
   </ItemGroup>
 
 </Project>

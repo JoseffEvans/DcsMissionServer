@@ -10,6 +10,7 @@
     <ProjectReference Include="..\CommandModels\CommandModels.csproj" />
     <ProjectReference Include="..\DcsPredictions\DcsPredictions.csproj" />
     <ProjectReference Include="..\DcsTcp\DcsTcp.csproj" />
+    <ProjectReference Include="..\UnitManager\UnitManager.csproj" />
   </ItemGroup>
 
 </Project>
