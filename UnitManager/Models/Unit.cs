@@ -8,5 +8,7 @@ namespace UnitManager.Models {
         public int UnitId { get; set; }
         public int CoalitionId { get; set; }
         public required string UnitName { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
     }
 }

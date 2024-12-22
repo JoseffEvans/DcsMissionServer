@@ -4,12 +4,18 @@ using DcsPredictions;
 using Newtonsoft.Json;
 using UnitManager;
 using UnitManager.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CommandHandling {
-    public class CommandHandler(DcsTcpSender connection, Manager unitManager){
+    public class CommandHandler { 
 
-        readonly DcsTcpSender Connection = connection;
-        readonly Manager UnitManager = unitManager;
+        public CommandHandler(IServiceProvider services) {
+            Connection = services.GetRequiredService<DcsTcpSender>();
+            UnitManager = services.GetRequiredService<Manager>();
+        }
+
+        readonly DcsTcpSender Connection;
+        readonly Manager UnitManager;
         public Action<string>? OnMessageHandled = null;
         public Action<string>? OnWriteMessage = null;
 
@@ -69,7 +75,7 @@ namespace CommandHandling {
         }
 
         public async Task UpdateUnits(string payload) {
-            await UnitManager.UpdateUnits(JsonConvert.DeserializeObject<List<Unit>>(payload)
+            await UnitManager.UpdateUnits(JsonConvert.DeserializeObject<UpdateUnitsRequest>(payload)?.Units
                 ?? throw new Exception("Update units request from dcs resulted in null"));
         }
     }

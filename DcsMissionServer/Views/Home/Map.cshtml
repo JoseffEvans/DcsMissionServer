@@ -1,0 +1,57 @@
+﻿@using System.Text.Json
+@model UnitsViewModel
+
+@{
+    ViewData["Title"] = "Map";
+}
+
+<h1>Map</h1>
+<canvas id="dcsMap" width="1000" height=10000>
+
+</canvas>
+
+<script>
+    var units = @Html.Raw(@JsonSerializer.Serialize(Model.Units))
+        console.log(JSON.stringify(units));
+
+    function calcScale(units){
+        var minX = Math.min(...units.map(unit => unit.PosX));
+        var maxX = Math.max(...units.map(unit => unit.PosX));
+        var minY = Math.min(...units.map(unit => unit.PosY));
+        var maxY = Math.max(...units.map(unit => unit.PosY));
+
+        var scaleX = 950 / Math.abs(maxX - minX);
+        var scaleY = 950 / Math.abs(maxY - minY);
+        var scale = Math.min(scaleX, scaleY);
+
+        var shiftX = minX < 0 ? minX * scale * -1: 0;
+        var shiftY = minY > 0 ? minY * scale * -1: 0;
+
+        return {
+            scale: scale,
+            shiftX: shiftX,
+            shiftY: shiftY
+        }
+    }
+
+    function graphPos(unit, scales){
+        return{
+            x: unit.PosX * scales.scale + scales.shiftX,
+            y: unit.PosY * scales.scale + scales.shiftY
+        }
+    }
+
+    var canvas = document.getElementById("dcsMap");
+    var ctx = canvas.getContext("2d");
+
+    var scales = calcScale(units);
+    units.forEach(unit => {
+        var pos = graphPos(unit, scales);
+        console.log(`draing pos  ${JSON.stringify(unit)}`);
+        console.log(`draing unit ${JSON.stringify(pos)}`);
+        console.log(JSON.stringify(scales));
+        ctx.fillStyle = unit.CoalitionId == 2 ? "Red" : "Blue";
+        ctx.fillRect(pos.y, pos.x, 20, 20);
+    });
+</script>
+

@@ -1,0 +1,60 @@
+﻿
+@model UnitsViewModel
+@{
+    ViewData["Title"] = "Units";
+}
+
+<h1>Units</h1>
+<div class="d-flex flex-row">
+    <div>
+        <h2>Blue Units</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Unit Id</th>
+                    <th>Unit Name</th>
+                    <th>Unit PosX</th>
+                    <th>Unit PosY</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var unit in Model.BlueUnits) {
+                    <tr>
+                        <td>@unit.UnitId</td>
+                        <td>@unit.UnitName</td>
+                        <td>@unit.PosX</td>
+                        <td>@unit.PosY</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div style="margin-left: 50px">
+        <h2>Red Units</h2>
+        <table class="table"> 
+            <thead>
+                <tr>
+                    <th>Unit Id</th>
+                    <th>Unit Name</th>
+                    <th>Unit PosX</th>
+                    <th>Unit PosY</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var unit in Model.RedUnits){
+                    <tr>
+                        <td>@unit.UnitId</td>
+                        <td>@unit.UnitName</td>
+                        <td>@unit.PosX</td>
+                        <td>@unit.PosY</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+

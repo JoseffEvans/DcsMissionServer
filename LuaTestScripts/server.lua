@@ -29,7 +29,7 @@ function SendTest()
             end
         end
     end
-    AppendSocketPath()
+
     local socket = require("socket")
     local con, err = socket.connect("localhost", 12622)
     if err then trigger.action.outText(net.lua2json(err), 100) end
@@ -39,7 +39,6 @@ end
 
 
 function CreateServer()
-
     local tcpLib = require("socket")
     local server = tcpLib.bind("127.0.0.1", 12522)
     if not server then return end
@@ -101,19 +100,51 @@ function RunServerLoop()
     )
 end
 
+function SendUnitdata()
+    local allUnits = {
+        Units = {}
+    }
+
+    for i = 1, 2 do
+        for _, group in ipairs(coalition.getGroups(i)) do
+            for _, unit in ipairs(group:getUnits()) do
+                local unitPos = unit:getPoint()
+                trigger.action.outText(net.lua2json(unitPos.x), 10)
+                allUnits.Units[#allUnits.Units+1] = {
+                    UnitId = unit:getID(),
+                    UnitName = unit:getName(),
+                    CoalitionId = i,
+                    PosX = unitPos.x,
+                    PosY = unitPos.z,
+                    Alt = unitPos.y
+                }
+            end
+        end
+    end
+
+    local socket = require("socket")
+    local con, err = socket.connect("localhost", 12622)
+    if err then trigger.action.outText(net.lua2json(err), 100) end
+    con:send("UpdateUnits\n")
+    con:send(net.lua2json(allUnits))
+    con:close()
+end
+
+AppendSocketPath()
+SendUnitdata()
+
 -- AppendSocketPath()
 -- RunServerLoop()
 -- SendTest()
 
-AppendSocketPath()
-local socket = require("socket")
-local con, err = socket.connect("localhost", 12622)
-if err then trigger.action.outText(net.lua2json(err), 100) end
--- Command
-con:send("Write\n")
--- Payload
-con:send("I like my dog")
-con:close()
+-- local socket = require("socket")
+-- local con, err = socket.connect("localhost", 12622)
+-- if err then trigger.action.outText(net.lua2json(err), 100) end
+-- -- Command
+-- con:send("Write\n")
+-- -- Payload
+-- con:send("I like my dog")
+-- con:close()
 
 
 

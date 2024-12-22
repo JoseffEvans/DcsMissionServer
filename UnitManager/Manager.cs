@@ -9,6 +9,16 @@ namespace UnitManager {
 
         public Manager(IServiceProvider services) {
             _services = services;
+            NewDb().Database.ExecuteSql($@"
+                DROP TABLE Unit;
+                CREATE TABLE Unit (
+	                UnitId INTEGER PRIMARY KEY,
+	                CoalitionId INTEGER NOT NULL,
+	                UnitName TEXT NOT NULL,
+                    PosX REAL,
+                    PosY REAL
+                );
+            ");
         }
 
         public async Task<List<Unit>> GetAllUnits() =>
