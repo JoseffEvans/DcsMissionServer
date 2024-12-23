@@ -18,6 +18,7 @@ namespace CommandHandling {
         readonly Manager UnitManager;
         public Action<string>? OnMessageHandled = null;
         public Action<string>? OnWriteMessage = null;
+        public Action<List<Unit>>? OnUnitsUpdated = null;
 
         public async Task<HandleCommandResult> HandleMessage(string message) {
             var i = message.IndexOf('\n');
@@ -77,6 +78,8 @@ namespace CommandHandling {
         public async Task UpdateUnits(string payload) {
             await UnitManager.UpdateUnits(JsonConvert.DeserializeObject<UpdateUnitsRequest>(payload)?.Units
                 ?? throw new Exception("Update units request from dcs resulted in null"));
+            if(OnUnitsUpdated is not null)
+                OnUnitsUpdated(await UnitManager.GetAllUnits());
         }
     }
 }

@@ -7,7 +7,7 @@ namespace UnitManager.Models {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int UnitId { get; set; }
         public int CoalitionId { get; set; }
-        public required string UnitName { get; set; }
+        public string? UnitName { get; set; }
         public float PosX { get; set; }
         public float PosY { get; set; }
     }

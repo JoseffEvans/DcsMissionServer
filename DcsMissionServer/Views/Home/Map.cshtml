@@ -10,9 +10,15 @@
 
 </canvas>
 
+<script src="~/lib/signalr/signalr.js"></script>
+
 <script>
     var units = @Html.Raw(@JsonSerializer.Serialize(Model.Units))
         console.log(JSON.stringify(units));
+
+    var canvas = document.getElementById("dcsMap");
+    var ctx = canvas.getContext("2d");
+    var scales = null;
 
     function calcScale(units){
         var minX = Math.min(...units.map(unit => unit.PosX));
@@ -35,23 +41,48 @@
     }
 
     function graphPos(unit, scales){
-        return{
-            x: unit.PosX * scales.scale + scales.shiftX,
-            y: unit.PosY * scales.scale + scales.shiftY
+        return {
+            y: unit.PosX * scales.scale + scales.shiftX - 500, // flipped here
+            x: unit.PosY * scales.scale + scales.shiftY,
         }
     }
 
-    var canvas = document.getElementById("dcsMap");
-    var ctx = canvas.getContext("2d");
+    function posGraph(point, scales){
+        return {
+            x: (point.y - scales.shiftX + 500) / scales.scale,
+            y: (point.x - scales.shiftY) / scales.scale
+        }
+    }
 
-    var scales = calcScale(units);
-    units.forEach(unit => {
-        var pos = graphPos(unit, scales);
-        console.log(`draing pos  ${JSON.stringify(unit)}`);
-        console.log(`draing unit ${JSON.stringify(pos)}`);
-        console.log(JSON.stringify(scales));
-        ctx.fillStyle = unit.CoalitionId == 2 ? "Red" : "Blue";
-        ctx.fillRect(pos.y, pos.x, 20, 20);
+    function redraw(units){
+        ctx.clearRect(0, 0, 1000, 1000);
+        if(!scales)
+            scales = calcScale(units);
+        units.forEach(unit => {
+            var pos = graphPos(unit, scales);
+            // console.log(`drawing pos  ${JSON.stringify(unit)}`);
+            // console.log(`Unposed: ${JSON.stringify(posGraph(pos, scales))}`);
+            console.log(`drawing unit ${JSON.stringify(pos)}`);
+            // console.log(JSON.stringify(scales));
+            ctx.fillStyle = unit.UnitName == "Player 0" ? "Green" : 
+                unit.CoalitionId == 1 ? "Red" : 
+                "Blue";
+            ctx.fillRect(pos.x, -pos.y, 10, 10);
+        });
+    }
+
+    redraw(units);
+
+    var connection = new signalR
+        .HubConnectionBuilder()
+        .withUrl("/unitsHub")
+        .build();
+
+    connection.on("UpdateUnits", (units) => {
+        redraw(JSON.parse(units));
     });
+
+    connection.start()
+        .catch(err => `Failed to start message connection, err: ${err}`);
 </script>
 

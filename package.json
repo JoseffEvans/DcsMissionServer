@@ -1,0 +1,23 @@
+{
+  "name": "dcsmissionserver",
+  "version": "1.0.0",
+  "description": "WIP, Not functional",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoseffEvans/DcsMissionServer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoseffEvans/DcsMissionServer/issues"
+  },
+  "homepage": "https://github.com/JoseffEvans/DcsMissionServer#readme",
+  "dependencies": {
+    "@microsoft/signalr": "^8.0.7"
+  }
+}

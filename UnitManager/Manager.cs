@@ -28,7 +28,13 @@ namespace UnitManager {
             await NewDb().Units.Where(unit => unit.CoalitionId == coalition).ToListAsync();
 
         public async Task UpdateUnits(List<Unit> units) {
-            await NewDb().Units.UpsertRange(units).On(unit => unit.UnitId).RunAsync();
+            var db = NewDb();
+            await db.Units.UpsertRange(units).On(unit => unit.UnitId).RunAsync();
+
+            var aliveIds = units.Select(unit => unit.UnitId);
+            await db.Units
+                .Where(unit => !aliveIds.Contains(unit.UnitId))
+                .ExecuteDeleteAsync();
         }
 
         public async Task ClearDb() {

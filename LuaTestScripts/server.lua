@@ -109,7 +109,6 @@ function SendUnitdata()
         for _, group in ipairs(coalition.getGroups(i)) do
             for _, unit in ipairs(group:getUnits()) do
                 local unitPos = unit:getPoint()
-                trigger.action.outText(net.lua2json(unitPos.x), 10)
                 allUnits.Units[#allUnits.Units+1] = {
                     UnitId = unit:getID(),
                     UnitName = unit:getName(),
@@ -131,6 +130,16 @@ function SendUnitdata()
 end
 
 AppendSocketPath()
+
+timer.scheduleFunction(
+    function()
+        local success, err = pcall(SendUnitdata)
+        if not success then OutText("loop failed: " .. err) end
+        return timer.getTime() + 0.1
+    end,
+    nil, timer.getTime() + 0.1
+)
+
 SendUnitdata()
 
 -- AppendSocketPath()
