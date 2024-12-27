@@ -7,7 +7,7 @@ using UnitManager.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CommandHandling {
-    public class CommandHandler { 
+    public class CommandHandler : ICommandHandler{ 
 
         public CommandHandler(IServiceProvider services) {
             Connection = services.GetRequiredService<DcsTcpSender>();
