@@ -25,7 +25,6 @@ builder.Services.AddSingleton<CommandHandler>(services => {
     };
 });
 
-
 builder.Services.AddHostedService<DcsTcpReciver>(
     services => {
         var commandHandler = services.GetRequiredService<CommandHandler>();
@@ -47,7 +46,6 @@ builder.Services.AddHostedService<DcsTcpReciver>(
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if(!app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();

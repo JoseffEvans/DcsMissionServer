@@ -6,8 +6,7 @@
 }
 
 <h1>Map</h1>
-<canvas id="dcsMap" width="1000" height=10000>
-
+<canvas id="dcsMap" width="4000" height="4000" style="height: 1000px; width: 1000px">
 </canvas>
 
 <script src="~/lib/signalr/signalr.js"></script>
@@ -20,14 +19,25 @@
     var ctx = canvas.getContext("2d");
     var scales = null;
 
+    var canvasSize = {
+        x: 4000,
+        y: 4000
+    }
+    
+    var visualScales = {
+        scale: 0.8,
+        shiftX: -500,
+        shiftY: 0
+    }
+
     function calcScale(units){
         var minX = Math.min(...units.map(unit => unit.PosX));
         var maxX = Math.max(...units.map(unit => unit.PosX));
         var minY = Math.min(...units.map(unit => unit.PosY));
         var maxY = Math.max(...units.map(unit => unit.PosY));
 
-        var scaleX = 950 / Math.abs(maxX - minX);
-        var scaleY = 950 / Math.abs(maxY - minY);
+        var scaleX = (canvasSize.y - 300) / Math.abs(maxX - minX);
+        var scaleY = (canvasSize.x - 300) / Math.abs(maxY - minY);
         var scale = Math.min(scaleX, scaleY);
 
         var shiftX = minX < 0 ? minX * scale * -1: 0;
@@ -42,36 +52,53 @@
 
     function graphPos(unit, scales){
         return {
-            y: unit.PosX * scales.scale + scales.shiftX - 500, // flipped here
+            y: unit.PosX * scales.scale + scales.shiftX - 2000, // flipped here
             x: unit.PosY * scales.scale + scales.shiftY,
+            unit: unit
         }
     }
 
     function posGraph(point, scales){
         return {
-            x: (point.y - scales.shiftX + 500) / scales.scale,
+            x: (point.y - scales.shiftX) / scales.scale,
             y: (point.x - scales.shiftY) / scales.scale
         }
     }
 
+    function visualScale(x, y){
+        return [
+            x * visualScales.scale + visualScales.shiftX, 
+            y * visualScales.scale + visualScales.shiftY
+        ];
+    }
+
     function redraw(units){
-        ctx.clearRect(0, 0, 1000, 1000);
-        if(!scales)
-            scales = calcScale(units);
+        ctx.clearRect(0, 0, canvasSize.x, canvasSize.y);
+
+
         units.forEach(unit => {
-            var pos = graphPos(unit, scales);
-            // console.log(`drawing pos  ${JSON.stringify(unit)}`);
-            // console.log(`Unposed: ${JSON.stringify(posGraph(pos, scales))}`);
-            console.log(`drawing unit ${JSON.stringify(pos)}`);
-            // console.log(JSON.stringify(scales));
-            ctx.fillStyle = unit.UnitName == "Player 0" ? "Green" : 
-                unit.CoalitionId == 1 ? "Red" : 
-                "Blue";
-            ctx.fillRect(pos.x, -pos.y, 10, 10);
+            ctx.fillStyle = 
+                unit.unit.UnitName == "Player 0" 
+                ? "Green" 
+                : unit.unit.CoalitionId == 1 
+                ? "Red" 
+                : "Blue";
+            ctx.fillRect(...visualScale(unit.x, -unit.y), 30, 30);
+        });
+
+        units.forEach(unit => {
+            ctx.font = "40px Arial";
+            ctx.fillStyle = "White";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.fillText(unit.unit.UnitName, ...visualScale(unit.x + 40, -unit.y));
         });
     }
 
-    redraw(units);
+    if (!scales)
+        scales = calcScale(units);
+
+    redraw(units.map(unit => graphPos(unit, scales)));
 
     var connection = new signalR
         .HubConnectionBuilder()
@@ -79,7 +106,9 @@
         .build();
 
     connection.on("UpdateUnits", (units) => {
-        redraw(JSON.parse(units));
+        if (!scales)
+            scales = calcScale(units);
+        redraw(JSON.parse(units).map(unit => graphPos(unit, scales)));
     });
 
     connection.start()
