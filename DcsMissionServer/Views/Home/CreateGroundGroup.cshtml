@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Create Ground Group";
+}
+
+<h2>Create Ground Group</h2>
+
+<div id="groupForm" class="top-bar">
+    <label>Group Id</label>
+    <input name="groupId" type="number" />
+
+    <label>Group Name</label>
+    <input name="name" type="text"/>
+
+    <label>X Coord</label>
+    <input name="x" type="number"/>
+
+    <lable>Y Coord</lable>
+    <input name="y" type="number"/>
+</div>
+
+<div>
+    <button onclick="AddUnit()">Add</button>
+    <div id="unitList">
+
+    </div>
+</div>
+
+<button onclick="Save()">Save</button>
+
+
+@section Scripts {
+    <script>
+        var nUnits = 0;
+
+        const groupFields = ["groupId", "name", "x", "y"];
+        const unitFields = ["unitId", "name", "type", "x", "y"];
+
+        function AddUnit(){
+            var groupForm = document.getElementById("groupForm");
+            var unitList = document.getElementById("unitList");
+
+            nUnits++;
+
+            var newUnit = document.createElement("div");
+            newUnit.id = `unit-${nUnits}`;
+            newUnit.innerHTML = `
+                <label>Unit Id</label> <input name="unitId" type="number" />
+                <label>Unit Name</label> <input name="name" type="text" />
+                <label>Type</label>
+                <input name="type" type="text"/>
+                <label>X Coord</label> <input name="x" type="number" value="${GetField(groupForm, "x")}"/>
+                <label>Y Coord</label> <input name="y" type="number" value="${GetField(groupForm, "y")}"/>
+                <button onclick="RemoveUnit(${nUnits})">Remove</button>
+            `;
+
+            unitList.appendChild(newUnit);
+            console.log("Done");
+        }
+
+        function RemoveUnit(id){
+            var unit = document.getElementById(`unit-${id}`);
+            if(!unit){
+                console.log(`Expected a unit for id ${id} but did not find one`);
+                return;
+            }
+            unit.remove();
+        }
+
+        function GetField(parent, name) {
+            var element = parent.querySelector(`input[name="${name}"]`);
+            if(!element){
+                console.log(`Unable to find field ${name}`);
+                throw `Unable to find field ${name}`;
+            }
+            return element.value;
+        }
+
+        function Save() {
+            var groupForm = document.getElementById("groupForm")
+
+            var newGroup = {
+                units: [...document.getElementById("unitList").children].map(node => {
+                    var unit = {};
+                    unitFields.forEach(field => unit[field] = GetField(node, field));
+                    return unit;
+                })
+            };
+
+            groupFields.forEach(field => newGroup[field] = GetField(groupForm, field));
+
+            console.log(`Output: ${JSON.stringify(newGroup)}`);
+        }
+    </script>
+}

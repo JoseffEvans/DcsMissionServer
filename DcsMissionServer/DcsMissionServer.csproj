@@ -16,8 +16,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CommandHandling\CommandHandling.csproj" />
+    <ProjectReference Include="..\DcsModels\DcsModels.csproj" />
     <ProjectReference Include="..\DcsPredictions\DcsPredictions.csproj" />
     <ProjectReference Include="..\DcsTcp\DcsTcp.csproj" />
+    <ProjectReference Include="..\SharedUtil\SharedUtil.csproj" />
     <ProjectReference Include="..\UnitManager\UnitManager.csproj" />
   </ItemGroup>
 

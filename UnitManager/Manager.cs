@@ -37,6 +37,9 @@ namespace UnitManager {
                 .ExecuteDeleteAsync();
         }
 
+        public async Task<Unit?> GetUnit(int id)
+            => await NewDb().Units.Where(unit => unit.UnitId == id).FirstOrDefaultAsync();
+
         public async Task ClearDb() {
             await NewDb().Database.ExecuteSqlAsync($"DELETE FROM Unit; VACUUM;");
         }

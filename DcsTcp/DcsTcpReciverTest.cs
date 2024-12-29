@@ -75,13 +75,13 @@ namespace DcsTcp{
                 CoalitionId = 1,
                 OnUpdate = unit => unit.PosY += 500f
             },
-            new Unit{
-                UnitId = 2,
-                UnitName = "Red 1-1",
-                PosX = -52242.53242f,
-                PosY = 41431.12412f,
-                CoalitionId = 1
-            }
+            //new Unit{
+            //    UnitId = 2,
+            //    UnitName = "Red 1-1",
+            //    PosX = -52242.53242f,
+            //    PosY = 41431.12412f,
+            //    CoalitionId = 1
+            //}
         ];
 
     }

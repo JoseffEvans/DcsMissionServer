@@ -29,6 +29,8 @@ namespace DcsMissionServer.Controllers {
             Units = await _unitManager.GetAllUnits()
         });
 
+        public IActionResult CreateGroundGroup() => View();
+
         [ResponseCache(Duration = 0,Location = ResponseCacheLocation.None,NoStore = true)]
         public IActionResult Error() {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

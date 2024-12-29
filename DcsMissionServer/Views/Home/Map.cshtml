@@ -17,17 +17,19 @@
 
     var canvas = document.getElementById("dcsMap");
     var ctx = canvas.getContext("2d");
-    var scales = null;
 
     var canvasSize = {
         x: 4000,
         y: 4000
     }
+
+    // calculated to fit input data to canvas
+    var scales = null;
     
     var visualScales = {
         scale: 0.8,
-        shiftX: -500,
-        shiftY: 0
+        shiftX: 0,
+        shiftY: 4000
     }
 
     function calcScale(units){
@@ -36,8 +38,8 @@
         var minY = Math.min(...units.map(unit => unit.PosY));
         var maxY = Math.max(...units.map(unit => unit.PosY));
 
-        var scaleX = (canvasSize.y - 300) / Math.abs(maxX - minX);
-        var scaleY = (canvasSize.x - 300) / Math.abs(maxY - minY);
+        var scaleX = (canvasSize.y) / Math.abs(maxX - minX);
+        var scaleY = (canvasSize.x) / Math.abs(maxY - minY);
         var scale = Math.min(scaleX, scaleY);
 
         var shiftX = minX < 0 ? minX * scale * -1: 0;
@@ -50,15 +52,20 @@
         }
     }
 
-    function graphPos(unit, scales){
+    function graphPos(unit){
         return {
-            y: unit.PosX * scales.scale + scales.shiftX - 2000, // flipped here
+            y: unit.PosX * scales.scale + scales.shiftX, // flipped here
             x: unit.PosY * scales.scale + scales.shiftY,
             unit: unit
         }
     }
 
-    function posGraph(point, scales){
+    function posGraph(point){
+        point = {
+            x: (point.x - visualScales.shiftX) / visualScales.scale,
+            y: (point.y - visualScales.shiftY) / visualScales.scale
+        }
+
         return {
             x: (point.y - scales.shiftX) / scales.scale,
             y: (point.x - scales.shiftY) / scales.scale
@@ -74,7 +81,6 @@
 
     function redraw(units){
         ctx.clearRect(0, 0, canvasSize.x, canvasSize.y);
-
 
         units.forEach(unit => {
             ctx.fillStyle = 
@@ -98,7 +104,7 @@
     if (!scales)
         scales = calcScale(units);
 
-    redraw(units.map(unit => graphPos(unit, scales)));
+    redraw(units.map(unit => graphPos(unit)));
 
     var connection = new signalR
         .HubConnectionBuilder()
@@ -108,10 +114,29 @@
     connection.on("UpdateUnits", (units) => {
         if (!scales)
             scales = calcScale(units);
-        redraw(JSON.parse(units).map(unit => graphPos(unit, scales)));
+        redraw(JSON.parse(units).map(unit => graphPos(unit)));
     });
 
     connection.start()
         .catch(err => `Failed to start message connection, err: ${err}`);
+
+    canvas.addEventListener('click', event => {
+        var rect = canvas.getBoundingClientRect();
+        var click = {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+        click = posGraph(click);
+        console.log(`Click: ${JSON.stringify(click)}`);
+
+        fetch("/unit/UnitDetails/1")
+            .then(result => {
+                console.log("In result")
+                if (result.ok){
+                    result.json().then(unit => console.log(unit.UnitName));
+                }
+            })
+            .catch(err => console.log(err));
+    });
 </script>
 
